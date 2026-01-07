@@ -1,0 +1,8 @@
+{
+  "name": "Auto Save",
+  "version": "1.0.0",
+  "author": "X4MASTER",
+  "description": "Auto-Save has arrived to GD! Since RobTop is too lazy to implement it, here’s this mod to save your day! PS: This mod doesn’t work magic—if servers are down, uploads may fail. The mod will notify you in that case!",
+  "license": "MIT",
+  "entry": "main.cpp"
+}
