@@ -9,6 +9,6 @@ public:
 private:
     void buildUI();
     void onSaveNow(CCObject* sender);
-    void onViewLogs(CCObject* sender);
+    void onToggleAuto(CCObject* sender);
+    void onIntervalChange(CCObject* sender);
 };
-
