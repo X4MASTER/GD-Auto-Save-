@@ -18,7 +18,7 @@ jobs:
       NDK_VERSION: 25.2.9519653
 
     steps:
-      # 1. Clona tu proyecto GDAS
+      # 1. Clona tu repo GDAS
       - name: Checkout GDAS repository
         uses: actions/checkout@v4
         with:
@@ -60,10 +60,10 @@ jobs:
           echo "ANDROID_NDK_HOME=$HOME/android-sdk/ndk/${NDK_VERSION}" >> $GITHUB_ENV
           echo "PATH=$HOME/android-sdk/cmdline-tools/cmdline-tools/bin:$HOME/android-sdk/platform-tools:$PATH" >> $GITHUB_ENV
 
-      # 7. Configura CMake apuntando a tu proyecto GDAS y al SDK
+      # 7. Configura CMake apuntando a la carpeta mod/
       - name: Configure CMake
         run: |
-          cmake -B build -S "${{ github.workspace }}" -G Ninja \
+          cmake -B build -S "${{ github.workspace }}/mod" -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DANDROID_ABI=${{ matrix.abi }} \
             -DANDROID_PLATFORM=android-${ANDROID_API_LEVEL} \
