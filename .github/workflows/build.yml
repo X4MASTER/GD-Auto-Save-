@@ -1,4 +1,4 @@
-name: Build and Package AutoSave (.geode)
+name: Build and Package GDAS (.geode)
 
 on:
   push:
@@ -18,29 +18,34 @@ jobs:
       NDK_VERSION: 25.2.9519653
 
     steps:
-      - name: Checkout repository
+      # 1. Clona tu proyecto GDAS
+      - name: Checkout GDAS repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
+      # 2. Instala dependencias básicas
       - name: Install prerequisites
         run: sudo apt-get update && sudo apt-get install -y unzip wget zip git cmake ninja-build curl
 
+      # 3. Clona el SDK oficial de Geode
       - name: Clone Geode SDK
         run: |
-          set -e
           rm -rf geode-sdk
           git clone --depth 1 https://github.com/geode-sdk/geode.git geode-sdk
 
+      # 4. Debug opcional: listar archivos del SDK
       - name: Debug list geode-sdk
         run: ls -la "${{ github.workspace }}/geode-sdk" || true
 
+      # 5. Instala JDK
       - name: Set up JDK 11
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '11'
 
+      # 6. Instala Android SDK y NDK
       - name: Install Android command line tools and NDK
         run: |
           set -e
@@ -55,21 +60,24 @@ jobs:
           echo "ANDROID_NDK_HOME=$HOME/android-sdk/ndk/${NDK_VERSION}" >> $GITHUB_ENV
           echo "PATH=$HOME/android-sdk/cmdline-tools/cmdline-tools/bin:$HOME/android-sdk/platform-tools:$PATH" >> $GITHUB_ENV
 
+      # 7. Configura CMake apuntando a tu proyecto GDAS y al SDK
       - name: Configure CMake
         run: |
-          cmake -B build -G Ninja \
+          cmake -B build -S "${{ github.workspace }}" -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DANDROID_ABI=${{ matrix.abi }} \
-            -DANDROID_PLATFORM=android-${{ env.ANDROID_API_LEVEL }} \
+            -DANDROID_PLATFORM=android-${ANDROID_API_LEVEL} \
             -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
             -DGEODE_SDK_ROOT=${{ github.workspace }}/geode-sdk
 
+      # 8. Compila y empaqueta el mod en formato .geode
       - name: Build and package (.geode)
         run: cmake --build build --target package -- -j$(nproc)
 
+      # 9. Sube el artefacto .geode generado
       - name: Upload .geode artifact
         uses: actions/upload-artifact@v4
         with:
-          name: AutoSave-${{ matrix.abi }}.geode
+          name: GDAS-${{ matrix.abi }}.geode
           path: build/*.geode
           
