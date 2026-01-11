@@ -1,6 +1,10 @@
-cmake_minimum_required(VERSION 3.16)
+# Requiere una versión moderna de CMake
+cmake_minimum_required(VERSION 3.16...3.31)
+
+# Nombre del proyecto (usa el mismo que tu mod)
 project(AutoSave)
 
+# Configuración estándar de C++
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
@@ -12,7 +16,7 @@ endif()
 # Incluir el helper oficial del SDK (fallará si GEODE_SDK_ROOT es incorrecto)
 include("${GEODE_SDK_ROOT}/cmake/Geode.cmake")
 
-# Fuentes: main.cpp en la raíz del mod, resto en src/
+# Definir el mod con fuentes y cabeceras
 geode_add_mod(AutoSave
     SOURCES
         ${CMAKE_SOURCE_DIR}/main.cpp
@@ -21,6 +25,10 @@ geode_add_mod(AutoSave
     HEADERS
         src/AutoSave.hpp
         src/SettingsLayer.hpp
+    RESOURCES
+        mod.json
+        assets/icon.png       # añade aquí tus recursos reales
+        assets/strings.json   # ejemplo de archivo de recursos
 )
 
 # Forzar nombre de salida conocido (opcional)
