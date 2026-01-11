@@ -7,9 +7,6 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
-permissions:
-  contents: read
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -29,31 +26,11 @@ jobs:
       - name: Install prerequisites
         run: sudo apt-get update && sudo apt-get install -y unzip wget zip git cmake ninja-build curl
 
-      - name: Clone Geode SDK using GITHUB_TOKEN (retries)
-        env:
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Clone Geode SDK
         run: |
-          set -euo pipefail
-          SDK_DIR="${GITHUB_WORKSPACE}/geode-sdk"
-          rm -rf "$SDK_DIR"
-          mkdir -p "$SDK_DIR"
-          # Use token in URL to avoid interactive prompts and API rate issues
-          REPO_URL="https://x-access-token:${TOKEN}@github.com/geode-sdk/geode-sdk.git"
-          tries=0
-          until [ $tries -ge 3 ]
-          do
-            echo "Cloning geode-sdk (attempt $((tries+1)))..."
-            if git clone --depth 1 "$REPO_URL" "$SDK_DIR"; then
-              echo "Cloned geode-sdk successfully"
-              break
-            fi
-            tries=$((tries+1))
-            sleep $((tries * 5))
-          done
-          if [ ! -d "$SDK_DIR" ] || [ -z "$(ls -A "$SDK_DIR")" ]; then
-            echo "Failed to obtain geode-sdk via git clone; aborting"
-            exit 1
-          fi
+          set -e
+          rm -rf geode-sdk
+          git clone --depth 1 https://github.com/geode-sdk/geode.git geode-sdk
 
       - name: Debug list geode-sdk
         run: ls -la "${{ github.workspace }}/geode-sdk" || true
@@ -66,7 +43,7 @@ jobs:
 
       - name: Install Android command line tools and NDK
         run: |
-          set -euo pipefail
+          set -e
           mkdir -p $HOME/android-sdk/cmdline-tools
           cd $HOME/android-sdk/cmdline-tools
           wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline.zip
@@ -80,7 +57,6 @@ jobs:
 
       - name: Configure CMake
         run: |
-          set -euo pipefail
           cmake -B build -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DANDROID_ABI=${{ matrix.abi }} \
